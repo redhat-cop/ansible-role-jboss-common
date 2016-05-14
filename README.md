@@ -1,4 +1,4 @@
-Ansible JBoss Common Role [![Build Status](https://travis-ci.org/rhtconsulting/jboss_common.svg)](https://travis-ci.org/rhtconsulting/jboss_common)
+Ansible JBoss Common Role [![Build Status](https://api.travis-ci.org/rhtconsulting/ansible-role-jboss-common.svg)](https://travis-ci.org/rhtconsulting/ansible-role-jboss-common)
 =================
 
 A role to handle the common setup required for the other roles in the JBoss family:
