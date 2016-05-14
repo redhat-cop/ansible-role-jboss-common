@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Red Hat Consulting
+  description: Common setup role for Red Hat JBoss family of roles
+  company: Red Hat
+  license: license (Apache)
+  min_ansible_version: 1.8
+  platforms:
+   - name: EL
+     versions:
+     - 7
+     - 6
+  categories:
+   - java
+   - jboss
+   - common
+dependencies: []
+
