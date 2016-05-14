@@ -19,6 +19,11 @@
   tags:
   - common
 
+- name: Install initscripts
+  action: "{{ ansible_pkg_mgr }} name=initscripts state=latest"
+  tags:
+  - common
+
 - name: Install EPEL for CentOS
   action: "{{ ansible_pkg_mgr }} name=epel-release state=latest"
   tags:
