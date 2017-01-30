@@ -32,7 +32,7 @@
 
 - name: attach to pool
   command: subscription-manager attach --pool="{{ rh_poolid }}"
-register: register_result
+  register: register_result
 
 - name: Enable Optional Repo for RHEL
   command: "subscription-manager repos --enable rhel-7-server-optional-rpms"
