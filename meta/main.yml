@@ -6,10 +6,10 @@ galaxy_info:
   license: license (Apache)
   min_ansible_version: 1.8
   platforms:
-   - name: EL
-     versions:
-     - 7
-     - 6
+  - name: EL
+    versions:
+    - 7
+    - 6
   categories:
    - java
    - jboss
