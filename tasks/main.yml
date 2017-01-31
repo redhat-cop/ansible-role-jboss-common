@@ -30,9 +30,13 @@
   - common
   when: transfer_method == 'csp-to-host' and ansible_distribution == 'CentOS'
 
-- name: attach to pool
+- name: Check Pool ID definition
+  fail: msg="Extra variable rh_poolid has not been defined. Please add it before running this playbook"
+  when: rh_poolid is not defined
+
+- name: Attach to pool
   command: subscription-manager attach --pool="{{ rh_poolid }}"
-  register: register_result
+  tags:
   - common
   when: rh_poolid is defined
 
