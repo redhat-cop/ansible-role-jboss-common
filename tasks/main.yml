@@ -30,6 +30,16 @@
   - common
   when: transfer_method == 'csp-to-host' and ansible_distribution == 'CentOS'
 
+- name: Check Pool ID definition
+  fail: msg="Extra variable rh_poolid has not been defined. Please add it before running this playbook"
+  when: rh_poolid is not defined
+
+- name: Attach to pool
+  command: subscription-manager attach --pool="{{ rh_poolid }}"
+  tags:
+  - common
+  when: rh_poolid is defined
+
 - name: Enable Optional Repo for RHEL
   command: "subscription-manager repos --enable rhel-7-server-optional-rpms"
   tags:
