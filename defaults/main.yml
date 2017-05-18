@@ -1,2 +1,3 @@
 ---
 jboss_java_pkg_name: java-1.8.0-openjdk-devel
+install_java: true
