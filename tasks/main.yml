@@ -11,6 +11,7 @@
 
 - name: Install Java
   action: "{{ ansible_pkg_mgr }} name={{ jboss_java_pkg_name }} state=latest"
+  when: install_java == true
   tags:
   - common
 
@@ -36,6 +37,7 @@
 
 - name: Attach to pool
   command: subscription-manager attach --pool="{{ rh_poolid }}"
+  ignore_errors: yes
   tags:
   - common
   when: rh_poolid is defined
