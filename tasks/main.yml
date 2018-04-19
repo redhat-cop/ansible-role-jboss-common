@@ -1,92 +1,75 @@
 ---
-- name: Subscribe the host
-  redhat_subscription:
-    state: present
-    username: "{{ rhn_username }}"
-    password: "{{ rhn_password }}"
-    autosubscribe: true
-  tags:
-  - jboss_eap
-  when: ansible_distribution == 'RedHat'
+  - name: Subscribe the host
+    redhat_subscription:
+      state: present
+      username: "{{ rhn_username }}"
+      password: "{{ rhn_password }}"
+      auto_attach: yes
+      pool_ids: "{{ rh_poolid }}"
+    tags:
+      - jboss_eap
+    when: ansible_distribution == 'RedHat'
 
-- name: Install Java
-  action: "{{ ansible_pkg_mgr }} name={{ jboss_java_pkg_name }} state=latest"
-  when: install_java == true
-  tags:
-  - common
+  - name: Install required dependencies
+    yum:
+      state: latest
+      name: "{{ item }}"
+    loop:
+      - java
+      - unzip
+      - initscripts
+      - pip
+    when: install_depedencies == true
+    tags:
+      - common
 
-- name: Install Unzip
-  action: "{{ ansible_pkg_mgr }} name=unzip state=latest"
-  tags:
-  - common
+  - name: Install EPEL for CentOS
+    yum: 
+      name: epel-release
+      state: latest
+    tags:
+      - common
+    when: transfer_method == 'csp-to-host' and ansible_distribution == 'CentOS'
 
-- name: Install initscripts
-  action: "{{ ansible_pkg_mgr }} name=initscripts state=latest"
-  tags:
-  - common
+  - name: Check Pool ID definition
+    fail: msg="Extra variable rh_poolid has not been defined. Please add it before running this playbook"
+    when: rh_poolid is not defined
 
-- name: Install EPEL for CentOS
-  action: "{{ ansible_pkg_mgr }} name=epel-release state=latest"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'CentOS'
 
-- name: Check Pool ID definition
-  fail: msg="Extra variable rh_poolid has not been defined. Please add it before running this playbook"
-  when: rh_poolid is not defined
+  - name: Enable Optional Repo for RHEL
+    rhsm_repository:
+      name: "{{ item }}"
+    loop:
+      - rhel-7-server-optional-rpms
+      - rhel-7-server-extras-rpms
+    tags:
+      - common
+    when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
 
-- name: Attach to pool
-  command: subscription-manager attach --pool="{{ rh_poolid }}"
-  ignore_errors: yes
-  tags:
-  - common
-  when: rh_poolid is defined
+  - name: Download EPEL for RHEL
+    yum:
+      name: "{{ epel_rpm }}"
+      state: latest
+    tags:
+      - common
+    when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
 
-- name: Enable Optional Repo for RHEL
-  command: "subscription-manager repos --enable rhel-7-server-optional-rpms"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
 
-- name: Enable Extras Repo for RHEL
-  command: "subscription-manager repos --enable rhel-7-server-extras-rpms"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
+  - name: Install Python Dependencies
+    pip:
+      name: "{{ item }}"
+      state: present
+    loop:
+     - requests
+     - lxml
+    tags:
+      - common
+    when: transfer_method == 'csp-to-host'
 
-- name: Download EPEL for RHEL
-  get_url:
-    url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-    dest: "/tmp"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
-
-- name: Install EPEL for RHEL
-  action: "{{ ansible_pkg_mgr }} name=/tmp/epel-release-latest-7.noarch.rpm state=present"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
-
-- name: Install PIP
-  action: "{{ ansible_pkg_mgr }} name=python-pip state=latest"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
-
-- name: Install Python Dependencies
-  pip:
-    name: "{{item}}"
-    state: present
-  with_items:
-   - requests
-   - lxml
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
-
-- name: Remove EPEL Package
-  action: "{{ ansible_pkg_mgr }} name='epel*' state=absent"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
+  - name: Remove EPEL Package
+    yum:
+      name: epel*
+      state: absent
+    tags:
+      - common
+    when: transfer_method == 'csp-to-host'
