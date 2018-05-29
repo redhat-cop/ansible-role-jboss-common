@@ -1,13 +1,14 @@
 ---
-- name: Subscribe the host
-  redhat_subscription:
-    state: present
-    username: "{{ rhn_username }}"
-    password: "{{ rhn_password }}"
-    autosubscribe: true
-  tags:
-  - jboss_eap
+
+- name: Tasks on a RHEL host
+  include: main-rhel.yml
   when: ansible_distribution == 'RedHat'
+
+- name: Tasks on a CentOS host
+  include: main-centos.yml
+  when: ansible_distribution == 'CentOS'
+
+
 
 - name: Install Java
   action: "{{ ansible_pkg_mgr }} name={{ jboss_java_pkg_name }} state=latest"
@@ -20,53 +21,14 @@
   tags:
   - common
 
+# initscripts are for : v6.x or older
 - name: Install initscripts
   action: "{{ ansible_pkg_mgr }} name=initscripts state=latest"
   tags:
   - common
+  when: ansible_distribution_major_version is version_compare('7', '<')
 
-- name: Install EPEL for CentOS
-  action: "{{ ansible_pkg_mgr }} name=epel-release state=latest"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'CentOS'
 
-- name: Check Pool ID definition
-  fail: msg="Extra variable rh_poolid has not been defined. Please add it before running this playbook"
-  when: rh_poolid is not defined
-
-- name: Attach to pool
-  command: subscription-manager attach --pool="{{ rh_poolid }}"
-  ignore_errors: yes
-  tags:
-  - common
-  when: rh_poolid is defined
-
-- name: Enable Optional Repo for RHEL
-  command: "subscription-manager repos --enable rhel-7-server-optional-rpms"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
-
-- name: Enable Extras Repo for RHEL
-  command: "subscription-manager repos --enable rhel-7-server-extras-rpms"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
-
-- name: Download EPEL for RHEL
-  get_url:
-    url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-    dest: "/tmp"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
-
-- name: Install EPEL for RHEL
-  action: "{{ ansible_pkg_mgr }} name=/tmp/epel-release-latest-7.noarch.rpm state=present"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
 
 - name: Install PIP
   action: "{{ ansible_pkg_mgr }} name=python-pip state=latest"
@@ -85,8 +47,8 @@
   - common
   when: transfer_method == 'csp-to-host'
 
-- name: Remove EPEL Package
-  action: "{{ ansible_pkg_mgr }} name='epel*' state=absent"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
+#- name: Remove EPEL Package
+#  action: "{{ ansible_pkg_mgr }} name='epel*' state=absent"
+#  tags:
+#  - common
+#  when: transfer_method == 'csp-to-host'

@@ -1,0 +1,8 @@
+---
+
+- name: Install EPEL for CentOS
+  action: "{{ ansible_pkg_mgr }} name=epel-release state=latest"
+  tags:
+  - common
+  when: transfer_method == 'csp-to-host' and ansible_distribution == 'CentOS'
+
