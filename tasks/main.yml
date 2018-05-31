@@ -43,8 +43,8 @@
   - common
   when: transfer_method == 'csp-to-host'
 
-#- name: Remove EPEL Package
-#  action: "{{ ansible_pkg_mgr }} name='epel*' state=absent"
-#  tags:
-#  - common
-#  when: transfer_method == 'csp-to-host'
+- name: Remove EPEL Package
+  action: "{{ ansible_pkg_mgr }} name='epel*' state=absent"
+  tags:
+  - common
+  when: transfer_method == 'csp-to-host'

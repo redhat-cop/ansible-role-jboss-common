@@ -7,13 +7,12 @@
     password: "{{ rhn_password }}"
     autosubscribe: true
   tags:
-  - jboss_eap
-  when: ansible_distribution == 'RedHat'
+  - common
 
 
 - name: Check Pool ID definition
   fail: msg="Extra variable rh_poolid has not been defined. Please add it before running this playbook"
-  when: rh_poolid is not defined and ansible_distribution == 'RedHat'
+  when: rh_poolid is not defined
 
 - name: Attach to pool
   command: subscription-manager attach --pool="{{ rh_poolid }}"
@@ -26,13 +25,13 @@
   command: "subscription-manager repos --enable rhel-7-server-optional-rpms"
   tags:
   - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
+  when: transfer_method == 'csp-to-host'
 
 - name: Enable Extras Repo for RHEL
   command: "subscription-manager repos --enable rhel-7-server-extras-rpms"
   tags:
   - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
+  when: transfer_method == 'csp-to-host'
 
 - name: Download EPEL for RHEL
   get_url:
@@ -40,11 +39,11 @@
     dest: "/tmp"
   tags:
   - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
+  when: transfer_method == 'csp-to-host'
 
 - name: Install EPEL for RHEL
   action: "{{ ansible_pkg_mgr }} name=/tmp/epel-release-latest-7.noarch.rpm state=present"
   tags:
   - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'RedHat'
+  when: transfer_method == 'csp-to-host'
 

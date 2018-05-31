@@ -4,5 +4,5 @@
   action: "{{ ansible_pkg_mgr }} name=epel-release state=latest"
   tags:
   - common
-  when: transfer_method == 'csp-to-host' and ansible_distribution == 'CentOS'
+  when: transfer_method == 'csp-to-host'
 
