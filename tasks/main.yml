@@ -10,7 +10,7 @@
 
 - name: Install Java
   action: "{{ ansible_pkg_mgr }} name={{ jboss_java_pkg_name }} state=latest"
-  when: install_java == true
+  when: install_java|bool
   tags:
   - common
 
@@ -26,25 +26,26 @@
   - common
   when: ansible_distribution_major_version is version_compare('7', '<')
 
-- name: Install PIP
-  action: "{{ ansible_pkg_mgr }} name=python-pip state=latest"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
 
-- name: Install Python Dependencies
-  pip:
-    name: "{{item}}"
-    state: present
-  with_items:
-   - requests
-   - lxml
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
+- name: Install PIP dependencies and Remove EPEL
+  block:
+    - name: Install PIP
+      action: "{{ ansible_pkg_mgr }} name=python-pip state=latest"
+      tags:
+      - common
 
-- name: Remove EPEL Package
-  action: "{{ ansible_pkg_mgr }} name='epel*' state=absent"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
+    - name: Install Python Dependencies
+      pip:
+        name: "{{item}}"
+        state: present
+      with_items:
+      - requests
+      - lxml
+      tags:
+      - common
+
+    - name: Remove EPEL Package
+      action: "{{ ansible_pkg_mgr }} name='epel*' state=absent"
+      tags:
+      - common
+  when: transfer_method == 'csp-to-host' and install_pip_dependencies|bool

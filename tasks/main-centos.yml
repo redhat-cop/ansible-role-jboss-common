@@ -4,5 +4,5 @@
   action: "{{ ansible_pkg_mgr }} name=epel-release state=latest"
   tags:
   - common
-  when: transfer_method == 'csp-to-host'
+  when: transfer_method == 'csp-to-host' and install_pip_dependencies|bool
 
