@@ -1,49 +1,49 @@
 ---
 
-- name: Subscribe the host
-  redhat_subscription:
-    state: present
-    username: "{{ rhn_username }}"
-    password: "{{ rhn_password }}"
-    autosubscribe: true
+- name: Subscribe the host to RHSM
+  block:
+    - name: Check Pool ID definition
+      fail: msg="Extra variable rh_poolid has not been defined. Please add it before running this playbook"
+      when: rh_poolid is not defined
+
+    - name: Subscribe the host
+      redhat_subscription:
+        state: present
+        username: "{{ rhn_username }}"
+        password: "{{ rhn_password }}"
+        autosubscribe: true
+
+    - name: Attach to pool
+      command: subscription-manager attach --pool="{{ rh_poolid }}"
+      ignore_errors: yes
+  when: rhsm_subscribe_host|bool
+
+- name: Disable All RHEL Repositories
+  command: "subscription-manager repos --disable=*"
   tags:
   - common
+  when: rhsm_disable_existing_repositories|bool
 
 
-- name: Check Pool ID definition
-  fail: msg="Extra variable rh_poolid has not been defined. Please add it before running this playbook"
-  when: rh_poolid is not defined
-
-- name: Attach to pool
-  command: subscription-manager attach --pool="{{ rh_poolid }}"
-  ignore_errors: yes
+- name: Enable RHEL Repositories
+  command: "subscription-manager repos --enable {{ item }}"
+  with_items: "{{ rhsm_repositories }}"
   tags:
   - common
-  when: rh_poolid is defined
+  when: transfer_method == 'csp-to-host' and rhsm_enable_required_repositories|bool
 
-- name: Enable Optional Repo for RHEL
-  command: "subscription-manager repos --enable rhel-7-server-optional-rpms"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
+- name: EPEL Configuration
+  block:
+    - name: Download EPEL for RHEL
+      get_url:
+        url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+        dest: "/tmp"
+      tags:
+      - common
 
-- name: Enable Extras Repo for RHEL
-  command: "subscription-manager repos --enable rhel-7-server-extras-rpms"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
-
-- name: Download EPEL for RHEL
-  get_url:
-    url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-    dest: "/tmp"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
-
-- name: Install EPEL for RHEL
-  action: "{{ ansible_pkg_mgr }} name=/tmp/epel-release-latest-7.noarch.rpm state=present"
-  tags:
-  - common
-  when: transfer_method == 'csp-to-host'
+    - name: Install EPEL for RHEL
+      action: "{{ ansible_pkg_mgr }} name=/tmp/epel-release-latest-7.noarch.rpm state=present"
+      tags:
+      - common
+  when: transfer_method == 'csp-to-host' and install_pip_dependencies|bool
 

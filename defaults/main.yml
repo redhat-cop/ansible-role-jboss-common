@@ -1,3 +1,11 @@
 ---
 jboss_java_pkg_name: java-1.8.0-openjdk-devel
 install_java: true
+rhsm_subscribe_host: true
+rhsm_disable_existing_repositories: true
+rhsm_enable_required_repositories: true
+install_pip_dependencies: true
+rhsm_repositories:
+  - rhel-7-server-rpms
+  - rhel-7-server-optional-rpms
+  - rhel-7-server-optional-rpms
