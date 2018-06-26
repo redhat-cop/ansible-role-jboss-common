@@ -8,4 +8,3 @@ install_pip_dependencies: true
 rhsm_repositories:
   - rhel-7-server-rpms
   - rhel-7-server-optional-rpms
-  - rhel-7-server-optional-rpms
