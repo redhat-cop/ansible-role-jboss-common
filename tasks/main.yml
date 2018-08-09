@@ -23,29 +23,29 @@
 - name: Install initscripts
   action: "{{ ansible_pkg_mgr }} name=initscripts state=latest"
   tags:
-  - common
+    - common
   when: ansible_distribution_major_version is version_compare('7', '<')
-
 
 - name: Install PIP dependencies and Remove EPEL
   block:
     - name: Install PIP
       action: "{{ ansible_pkg_mgr }} name=python-pip state=latest"
       tags:
-      - common
+        - common
 
     - name: Install Python Dependencies
       pip:
         name: "{{item}}"
         state: present
       with_items:
-      - requests
-      - lxml
+        - requests
+        - lxml
       tags:
-      - common
+        - common
 
     - name: Remove EPEL Package
       action: "{{ ansible_pkg_mgr }} name='epel*' state=absent"
+      changed_when: False
       tags:
-      - common
+        - common
   when: transfer_method == 'csp-to-host' and install_pip_dependencies|bool
