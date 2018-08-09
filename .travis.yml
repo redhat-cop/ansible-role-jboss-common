@@ -15,14 +15,7 @@ install:
 
 # command to run tests
 script:
-  - ansible-galaxy install -r requirements.yml -p ./roles
-  - |
-    for PLAYBOOK in *.yml
-    do
-    if [ "$PLAYBOOK" != "requirements.yml" ]; then
-    ansible-playbook $PLAYBOOK --syntax-check
-    fi
-    done
+  - ansible-playbook -i tests/inventory tests/syntax-check.yml --syntax-check
   - yamllint -s -c tests/yamllint.yml $(find . -name '*.yml')
   - molecule test
 
