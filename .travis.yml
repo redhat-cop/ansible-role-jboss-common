@@ -1,11 +1,22 @@
+---
+
 language: python
 python:
   - "2.7"
 # command to install dependencies
-install:  pip install ansible==2.4
+install:
+  - pip install -U pip
+  - pip --version
+  - pip install ansible==2.4 ansible-lint yamllint flake8 molecule
+  - pip install 'docker<3.0'
+  - ansible-lint --version
+  - yamllint --version
+  - flake8 --version
+  - molecule --version
+
 # command to run tests
 script:
-  - ansible-playbook -i tests/inventory tests/syntax-check.yml --syntax-check
+  - molecule test
 
 notifications:
   slack: redhat:GhPEcNzYddt4Pf9OJW2wcyCK
