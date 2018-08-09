@@ -2,5 +2,6 @@
 
 - hosts: jboss_common_centos_hosts
   gather_facts: false
-  roles:
-    - jboss_common
+  tasks:
+    - include_role:
+        name: "../"

@@ -1,5 +1,6 @@
 ---
 - name: Converge
   hosts: all
-  roles:
-    - role: ansible-role-jboss-common
+  tasks:
+    - include_role:
+        name: "../../../"
