@@ -7,7 +7,8 @@ python:
 install:
   - pip install -U pip
   - pip --version
-  - pip install ansible==2.4 ansible-lint yamllint flake8 molecule docker<3.0
+  - pip install ansible==2.4 ansible-lint yamllint flake8 molecule
+  - pip install 'docker<3.0'
   - ansible-lint --version
   - yamllint --version
   - flake8 --version
