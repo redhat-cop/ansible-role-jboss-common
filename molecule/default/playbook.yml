@@ -2,4 +2,4 @@
 - name: Converge
   hosts: all
   roles:
-    - role: redhat-cop.jboss_common
+    - role: ansible-role-jboss-common
