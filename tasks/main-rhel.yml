@@ -21,15 +21,14 @@
 - name: Disable All RHEL Repositories
   command: "subscription-manager repos --disable=*"
   tags:
-  - common
+    - common
   when: rhsm_disable_existing_repositories|bool
-
 
 - name: Enable RHEL Repositories
   command: "subscription-manager repos --enable {{ item }}"
   with_items: "{{ rhsm_repositories }}"
   tags:
-  - common
+    - common
   when: transfer_method == 'csp-to-host' and rhsm_enable_required_repositories|bool
 
 - name: EPEL Configuration
@@ -39,11 +38,11 @@
         url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
         dest: "/tmp"
       tags:
-      - common
+        - common
 
     - name: Install EPEL for RHEL
       action: "{{ ansible_pkg_mgr }} name=/tmp/epel-release-latest-7.noarch.rpm state=present"
+      changed_when: False
       tags:
-      - common
+        - common
   when: transfer_method == 'csp-to-host' and install_pip_dependencies|bool
-
