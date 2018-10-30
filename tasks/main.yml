@@ -8,28 +8,35 @@
   include: main-centos.yml
   when: ansible_distribution == 'CentOS'
 
-- name: Install Java
-  action: "{{ ansible_pkg_mgr }} name={{ jboss_java_pkg_name }} state=latest"
+- name: Set Java to be Installed
+  set_fact:
+    packages_to_install: "{{ packages_to_install | default([]) + [ jboss_java_pkg_name ] }}"
   when: install_java|bool
   tags:
-  - common
+    - common
 
-- name: Install Unzip
-  action: "{{ ansible_pkg_mgr }} name=unzip state=latest"
+- name: Set Unzip to be Installed
+  set_fact:
+    packages_to_install: "{{ packages_to_install | default([]) + [ 'unzip' ] }}"
   tags:
-  - common
+    - common
 
-# initscripts are for : v6.x or older
-- name: Install initscripts
-  action: "{{ ansible_pkg_mgr }} name=initscripts state=latest"
+- name: Set Initscripts to be Installed
+  set_fact:
+    packages_to_install: "{{ packages_to_install | default([]) + [ 'initscripts' ] }}"
   tags:
     - common
   when: ansible_distribution_major_version is version_compare('7', '<')
 
+- name: Install packages
+  package:
+    name: "{{ packages_to_install }}"
+    state: present
+
 - name: Install PIP dependencies and Remove EPEL
   block:
     - name: Install PIP
-      action: "{{ ansible_pkg_mgr }} name=python-pip state=latest"
+      action: "{{ ansible_pkg_mgr }} name=python-pip state=present"
       tags:
         - common
 
