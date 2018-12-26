@@ -1,11 +1,11 @@
 ---
 
 - name: Tasks on a RHEL host
-  include: main-rhel.yml
+  include_tasks: main-rhel.yml
   when: ansible_distribution == 'RedHat'
 
 - name: Tasks on a CentOS host
-  include: main-centos.yml
+  include_tasks: main-centos.yml
   when: ansible_distribution == 'CentOS'
 
 - name: Set Java to be Installed
@@ -32,6 +32,9 @@
   package:
     name: "{{ packages_to_install }}"
     state: present
+  register: packages_result
+  retries: 5
+  until: packages_result is success
 
 - name: Install PIP dependencies and Remove EPEL
   block:
@@ -42,8 +45,11 @@
 
     - name: Install Python Dependencies
       pip:
-        name: "{{item}}"
+        name: "{{ item }}"
         state: present
+      register: pip_result
+      retries: 5
+      until: pip_result is success
       with_items:
         - requests
         - lxml
