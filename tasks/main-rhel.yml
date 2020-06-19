@@ -46,3 +46,17 @@
       tags:
         - common
   when: transfer_method == 'csp-to-host' and install_pip_dependencies|bool
+
+- name: Set Java 8 to be Installed on RHEL 7
+  set_fact:
+    packages_to_install: "{{ packages_to_install | default([]) + [ jboss_java_pkg_name ] }}"
+  when: install_java|bool and ansible_distribution_major_version == "7"
+  tags:
+    - common
+
+- name: Set Java 11 to be Installed on RHEL 8
+  set_fact:
+    packages_to_install: "{{ packages_to_install | default([]) + [ jboss_java_11_pkg_name ] }}"
+  when: install_java|bool and ansible_distribution_major_version == "8"
+  tags:
+    - common

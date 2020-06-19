@@ -6,3 +6,10 @@
   tags:
   - common
   when: transfer_method == 'csp-to-host' and install_pip_dependencies|bool
+
+- name: Set Java to be Installed
+  set_fact:
+    packages_to_install: "{{ packages_to_install | default([]) + [ jboss_java_pkg_name ] }}"
+  when: install_java|bool
+  tags:
+    - common

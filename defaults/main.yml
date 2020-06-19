@@ -1,5 +1,6 @@
 ---
 jboss_java_pkg_name: java-1.8.0-openjdk-devel
+jboss_java_11_pkg_name: java-11-openjdk-devel
 install_java: true
 transfer_method: csp-to-host
 rhsm_subscribe_host: true

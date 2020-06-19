@@ -8,13 +8,6 @@
   include_tasks: main-centos.yml
   when: ansible_distribution == 'CentOS'
 
-- name: Set Java to be Installed
-  set_fact:
-    packages_to_install: "{{ packages_to_install | default([]) + [ jboss_java_pkg_name ] }}"
-  when: install_java|bool
-  tags:
-    - common
-
 - name: Set Unzip to be Installed
   set_fact:
     packages_to_install: "{{ packages_to_install | default([]) + [ 'unzip' ] }}"
@@ -39,9 +32,14 @@
 - name: Install PIP dependencies and Remove EPEL
   block:
     - name: Install PIP
-      action: "{{ ansible_pkg_mgr }} name=python-pip state=present"
+      package:
+        name: "{{ item }}"
+        state: present
       tags:
         - common
+      with_items:
+        - python2-pip
+        - python3-pip
 
     - name: Install Python Dependencies
       pip:
@@ -61,4 +59,4 @@
       changed_when: False
       tags:
         - common
-  when: transfer_method == 'csp-to-host' and install_pip_dependencies|bool
+  when: install_pip_dependencies|bool
